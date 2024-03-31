@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Repo Size</title>
+</head>
+
+<body>
+  <style>
+    body {
+      width: 100vw;
+      height: 100vh;
+      text-align: center;
+    }
+
+    form input,
+    form button {
+      padding: 1em 1em;
+    }
+  </style>
+  <script>
+    async function getReposize(event) {
+      // prevent the form from reloading the page
+      event.preventDefault();
+
+      const repoUrl = document.getElementById("repoUrl").value;
+      const requestUrl = repoUrl.replace("github.com", "api.github.com");
+
+      const urlList = requestUrl.split('/')
+      const tail = urlList.splice(3)
+      const head = urlList.slice(0, 3)
+      const fullUrl = [...head, "repos", ...tail].join('/');
+
+      const result = document.getElementById("result");
+      const shower = document.createElement("h2");
+      result.appendChild(shower);
+
+      shower.innerText = "Loading...";
+      const response = await fetch(fullUrl);
+      if (!response.ok) {
+        shower.innerText = "Failed!";
+      }
+
+      const data = await response.json();
+
+      shower.innerText = `${data.full_name} — ${(parseInt(data.size) / 1024).toFixed(0)}mb`;
+    }
+  </script>
+  <h1>View the size of a GitHub Repository</h1>
+  <form onsubmit="getReposize(event)">
+    <input id="repoUrl" type="text" placeholder="https://github.com/evanw/esbuild">
+    <button type="submit">Get Size</button>
+  </form>
+  <div id="result">
+
+  </div>
+</body>
+
+</html>
